@@ -1,0 +1,14 @@
+{
+  "name": "@jkitsao/echo",
+  "version": "0.1.0",
+  "description": "Cross-platform WebSocket sync client (Node.js + Browser + Next.js)",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
+  "type": "module",
+  "keywords": ["Devhooks","websocket", "sync", "events", "echo"],
+  "author": "Jackson Kitsao",
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}
