@@ -18,8 +18,6 @@ When you send events to [Devhooks Ingest](https://devhooks/ingest), they don't j
 
 - Plays nicely with state managers (Zustand, Redux, Jotai, etc.)
 
-- Written in TypeScript for type safety
-
 Think of it as your "event surface layer" --- just send events to Devhooks, and `echo` brings them back to your app in real-time.
 
 ---
@@ -39,53 +37,34 @@ yarn add @jkitsao/echo`
 ### Basic Example
 
 ```js
+"use client";
 
-import { Echo } from "@jkitsao/echo";
+import { SyncClient } from "@jkitsao/echo";
+import { useEffect } from "react";
 
-const echo = new Echo({
-url: "wss://devhooks.live/ws", // Your Devhooks WebSocket URL
-token: "<your-auth-token>", // Optional: if using auth
-});
-
-// Subscribe to all events
-echo.on("message", (event) => {
-console.log("Got event:", event);
-});
-
-// Subscribe to a specific channel
-echo.subscribe("orders", (order) => {
-console.log("New order:", order);
-});`
-
-### With React (state update)
-
-`"use client";
-import { useEffect, useState } from "react";
-import { Echo } from "@jkitsao/echo";
-
-export default function Orders() {
-const [orders, setOrders] = useState<any[]>([]);
-
-useEffect(() => {
-const echo = new Echo({ url: "wss://devhooks.live/ws" });
-
-    echo.subscribe("orders", (order) => {
-      setOrders((prev) => [...prev, order]);
+export default function Page() {
+  useEffect(() => {
+    const client = new SyncClient({
+      sourceId: "frontend-app",
+      secret: "supersecret",
     });
 
-    return () => echo.close();
+    client.on("authenticated", () => {
+      console.log("✅ Authenticated!");
+      client.send({ type: "hello", msg: "from Next.js" });
+    });
 
-}, []);
+    client.on("event", (data) => {
+      console.log("📩 Event received:", data);
+    });
 
-return (
- <ul>
-  {orders.map((o, i) => (
-   <li key={i}>{JSON.stringify(o)}</li>
-  ))}
- </ul>
-);
+    client.connect();
+
+    return () => client.disconnect();
+  }, []);
+
+  return <div>Echo Client Running...</div>;
 }
-
 ```
 
 ---
@@ -95,5 +74,3 @@ return (
 MIT © 2025 [Jackson Kitsao](https://github.com/jkitsao)
 
 ---
-
-Would you like me to also add a **"How it works internally"** section (like a tiny diagram: Devhooks → Echo → UI) so devs grok it quickly at a glance?
